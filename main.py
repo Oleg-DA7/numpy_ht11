@@ -6,6 +6,7 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler, Normalizer
 from sklearn.mixture import GaussianMixture
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.impute import SimpleImputer
 
 # Завантажуємо дані
 df = pd.DataFrame()
@@ -67,18 +68,7 @@ fig = px.choropleth(df,
 fig.show()
 
 # 9. Стандартизація даних
-def data_scale(data, scaler_type='minmax'):
-    if scaler_type == 'minmax':
-        scaler = MinMaxScaler()
-    elif scaler_type == 'std':
-        scaler = StandardScaler()
-    elif scaler_type == 'norm':
-        scaler = Normalizer()
-    scaler.fit(data)
-    return scaler.transform(data)
-
-data_scaled = data_scale(df[numeric_cols], scaler_type='std')
-df_scaled = pd.DataFrame(data_scaled, columns=numeric_cols)
+df_scaled = pd.DataFrame(StandardScaler().fit_transform(df[numeric_cols]), columns=numeric_cols)
 print("Scaled Data Statistics:")
 print(df_scaled.describe())
 
@@ -87,6 +77,8 @@ print("Original Data Statistics:")
 print(df[numeric_cols].describe())
 
 # 11. Модель кластеризації GaussianMixture
+df_scaled = SimpleImputer(strategy='mean').fit_transform(df_scaled)
+
 gmm = GaussianMixture(n_components=3, random_state=42)
 cluster_labels = gmm.fit_predict(df_scaled)
 df['Cluster'] = cluster_labels
@@ -101,8 +93,9 @@ fig_cluster.show()
 
 # 13. Вплив набору ознак на кластеризацію
 subset_cols = ['Economy (GDP per Capita)', 'Family']
-data_subset_scaled = data_scale(df[subset_cols], scaler_type='std')
+data_subset_scaled = pd.DataFrame(StandardScaler().fit_transform(df[subset_cols]), columns=subset_cols)
 gmm_subset = GaussianMixture(n_components=3, random_state=42)
+data_subset_scaled = SimpleImputer(strategy='mean').fit_transform(data_subset_scaled)
 cluster_labels_subset = gmm_subset.fit_predict(data_subset_scaled)
 df['Cluster_Subset'] = cluster_labels_subset
 print("Cluster change rate:", (df['Cluster'] != df['Cluster_Subset']).mean())
