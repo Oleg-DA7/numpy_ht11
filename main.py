@@ -68,7 +68,7 @@ fig = px.choropleth(df,
 fig.show()
 
 # 9. Стандартизація даних
-df_scaled = pd.DataFrame(StandardScaler().fit_transform(df[numeric_cols]), columns=numeric_cols)
+df_scaled = pd.DataFrame(MinMaxScaler().fit_transform(df[numeric_cols]), columns=numeric_cols)
 print("Scaled Data Statistics:")
 print(df_scaled.describe())
 
@@ -93,7 +93,7 @@ fig_cluster.show()
 
 # 13. Вплив набору ознак на кластеризацію
 subset_cols = ['Economy (GDP per Capita)', 'Family']
-data_subset_scaled = pd.DataFrame(StandardScaler().fit_transform(df[subset_cols]), columns=subset_cols)
+data_subset_scaled = pd.DataFrame(MinMaxScaler().fit_transform(df[subset_cols]), columns=subset_cols)
 gmm_subset = GaussianMixture(n_components=3, random_state=42)
 data_subset_scaled = SimpleImputer(strategy='mean').fit_transform(data_subset_scaled)
 cluster_labels_subset = gmm_subset.fit_predict(data_subset_scaled)
